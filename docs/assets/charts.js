@@ -11,7 +11,10 @@ const observers = [], cleanups = [];
 export function clearCharts() { while (observers.length) observers.pop().disconnect(); while (cleanups.length) cleanups.pop()(); hideTip(); }
 function mount(el, draw) {
   let last = 0;
-  const ro = new ResizeObserver(() => { const w = Math.round(el.clientWidth); if (w > 0 && w !== last) { last = w; setTimeout(() => { if (el.isConnected) draw(w); }, 0);   /* after the observer returns; a timer also runs in a background tab */ } });
+  const go = () => { const w = Math.round(el.clientWidth); if (w > 0 && w !== last) { last = w; draw(w); } };
+  go();   // draw at once: a hidden or background tab delivers no resize notifications
+  // later size changes are redrawn from a timer, after the observer has returned
+  const ro = new ResizeObserver(() => setTimeout(() => { if (el.isConnected) go(); }, 0));
   if (el._ro) el._ro.disconnect();   // redrawing with new options replaces the earlier chart
   el._ro = ro;
   ro.observe(el); observers.push(ro);

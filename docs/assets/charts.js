@@ -11,7 +11,7 @@ const observers = [], cleanups = [];
 export function clearCharts() { while (observers.length) observers.pop().disconnect(); while (cleanups.length) cleanups.pop()(); hideTip(); }
 function mount(el, draw) {
   let last = 0;
-  const ro = new ResizeObserver(() => { const w = Math.round(el.clientWidth); if (w > 0 && w !== last) { last = w; requestAnimationFrame(() => { if (el.isConnected) draw(w); }); } });
+  const ro = new ResizeObserver(() => { const w = Math.round(el.clientWidth); if (w > 0 && w !== last) { last = w; setTimeout(() => { if (el.isConnected) draw(w); }, 0);   /* after the observer returns; a timer also runs in a background tab */ } });
   if (el._ro) el._ro.disconnect();   // redrawing with new options replaces the earlier chart
   el._ro = ro;
   ro.observe(el); observers.push(ro);
